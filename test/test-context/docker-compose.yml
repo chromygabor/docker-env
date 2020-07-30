@@ -1,0 +1,10 @@
+version: "3.5"
+
+services:
+  server-service:
+    build: 
+      context: ./server
+  frontend-service:
+    build: 
+      context: ./frontend
+
