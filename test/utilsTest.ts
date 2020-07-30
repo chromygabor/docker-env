@@ -1,16 +1,18 @@
 import { assert } from 'chai'
+import Dockerode from 'dockerode'
+import { existsSync } from 'fs'
 import { describe, it } from 'mocha'
 import { resolve } from 'path'
+import { errors } from '../src/errors'
 import {
-  lookForConfig,
   CONFIG_FILENAME,
+  IArgs,
+  lookForConfig,
   start,
   stop,
-  IArgs,
 } from '../src/utils'
-import { errors } from '../src/errors'
-import { existsSync } from 'fs'
-import Dockerode from 'dockerode'
+
+console.log(process.env)
 
 describe('LookForConfig', () => {
   it('Should find a config on test context', () => {
