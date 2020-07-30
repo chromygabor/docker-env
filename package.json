@@ -28,7 +28,7 @@
     "build:watch": "tsc --build tsconfig.json --watch",
     "format": "prettier --write src/**/*.{js,jsx,ts,tsx}",
     "lint": "eslint --fix src/**/*.{js,jsx,ts,tsx}",
-    "test": "mocha",
+    "test": "mocha --timeout 60000",
     "test:watch": "mocha --watch --timeout 60000"
   },
   "private": true,
