@@ -4,7 +4,7 @@ import { existsSync } from 'fs'
 import { describe, it } from 'mocha'
 import { resolve } from 'path'
 import { errors } from '../src/errors'
-import { CONFIG_FILENAME, IArgs, lookForConfig } from '../src/utils'
+import { CONFIG_FILENAME, IArgs, lookForConfig, start } from '../src/utils'
 
 describe('LookForConfig', () => {
   it('Should find a config on test context', () => {
@@ -78,7 +78,7 @@ describe('Start and stop', () => {
     }
     //console.log(args)
 
-    //await start(args)
+    await start(args)
     const dc = spawn('docker-compose', ['--version'])
     dc.stdout.on('data', (data) => {
       console.log(`--- stdout: ${data}`)
