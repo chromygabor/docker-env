@@ -12,8 +12,6 @@ import {
   stop,
 } from '../src/utils'
 
-console.log(process.env)
-
 describe('LookForConfig', () => {
   it('Should find a config on test context', () => {
     const path = resolve(__dirname, './test-context/frontend')
