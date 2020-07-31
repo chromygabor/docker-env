@@ -1,5 +1,4 @@
-import { down } from 'docker-compose'
-import { errors } from '../errors'
+import { spawn } from 'child_process'
 import { IArgs } from './index'
 
 /**
@@ -11,17 +10,32 @@ export async function stop({
   env,
   config: { projectName },
 }: IArgs): Promise<void> {
-  try {
-    await down({
+  return new Promise<void>((resolutionFunc, rejectionFunc) => {
+    const dcArgs = composeFiles
+      .reduce<string[]>((pv, cv) => {
+        return pv.concat('-f', cv)
+      }, [])
+      .concat('down')
+
+    const defaults = {
       cwd: process.env.PWD,
-      config: composeFiles,
       env: {
-        ...env,
+        ...process.env,
         COMPOSE_PROJECT_NAME: projectName,
       },
-      log: true,
+    }
+    const dc = spawn('docker-compose', dcArgs, defaults)
+    dc.stdout.on('data', (data) => {
+      console.log(`--- stdout: ${data}`)
     })
-  } catch (err) {
-    throw errors.COULDNT_STOP_SERVICES(err)
-  }
+
+    dc.stderr.on('data', (data) => {
+      console.error(`--- stderr: ${data}`)
+    })
+
+    dc.on('close', (code) => {
+      console.log(`--- child process exited with code ${code}`)
+      resolutionFunc()
+    })
+  })
 }

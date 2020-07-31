@@ -3,8 +3,14 @@ import { existsSync } from 'fs'
 import { describe, it } from 'mocha'
 import { resolve } from 'path'
 import { errors } from '../src/errors'
-import { CONFIG_FILENAME, IArgs, lookForConfig } from '../src/utils'
-import { spawn } from 'child_process'
+import {
+  CONFIG_FILENAME,
+  IArgs,
+  lookForConfig,
+  start,
+  stop,
+} from '../src/utils'
+import Dockerode from 'dockerode'
 
 describe('LookForConfig', () => {
   it('Should find a config on test context', () => {
@@ -77,54 +83,54 @@ describe('Start and stop', () => {
       moduleName: '',
     }
 
-    const files = args.composeFiles
+    // const files = args.composeFiles
 
-    const dcArgs = files
-      .reduce<string[]>((pv, cv) => {
-        return pv.concat('-f', cv)
-      }, [])
-      .concat('up', '-d')
+    // const dcArgs = files
+    //   .reduce<string[]>((pv, cv) => {
+    //     return pv.concat('-f', cv)
+    //   }, [])
+    //   .concat('up', '-d', '--build')
 
-    //await start(args)
+    await start(args)
 
-    const defaults = {
-      cwd: process.env.PWD,
-      env: {
-        ...process.env,
-        COMPOSE_PROJECT_NAME: args.config.projectName,
-      },
-    }
-    console.log(dcArgs)
-    const dc = spawn('docker-compose', dcArgs, defaults)
-    dc.stdout.on('data', (data) => {
-      console.log(`--- stdout: ${data}`)
-    })
-
-    dc.stderr.on('data', (data) => {
-      console.error(`--- stderr: ${data}`)
-    })
-
-    dc.on('close', (code) => {
-      console.log(`--- child process exited with code ${code}`)
-    })
-
-    // const docker = new Dockerode()
-    // const startedList = await docker.listContainers()
-    // const startedFiltered = startedList.filter((container) => {
-    //   return (
-    //     container['Labels']['com.docker.compose.project'] === 'test-project'
-    //   )
+    // const defaults = {
+    //   cwd: process.env.PWD,
+    //   env: {
+    //     ...process.env,
+    //     COMPOSE_PROJECT_NAME: args.config.projectName,
+    //   },
+    // }
+    // console.log(dcArgs)
+    // const dc = spawn('docker-compose', dcArgs, defaults)
+    // dc.stdout.on('data', (data) => {
+    //   console.log(`--- stdout: ${data}`)
     // })
 
-    // await stop(args)
-    // const stoppedList = await docker.listContainers()
-    // const stoppedFiltered = stoppedList.filter((container) => {
-    //   return (
-    //     container['Labels']['com.docker.compose.project'] === 'test-project'
-    //   )
+    // dc.stderr.on('data', (data) => {
+    //   console.error(`--- stderr: ${data}`)
     // })
 
-    // assert.isAbove(startedFiltered.length, 0)
-    // assert.equal(stoppedFiltered.length, 0)
+    // dc.on('close', (code) => {
+    //   console.log(`--- child process exited with code ${code}`)
+    // })
+
+    const docker = new Dockerode()
+    const startedList = await docker.listContainers()
+    const startedFiltered = startedList.filter((container) => {
+      return (
+        container['Labels']['com.docker.compose.project'] === 'test-project'
+      )
+    })
+
+    await stop(args)
+    const stoppedList = await docker.listContainers()
+    const stoppedFiltered = stoppedList.filter((container) => {
+      return (
+        container['Labels']['com.docker.compose.project'] === 'test-project'
+      )
+    })
+
+    assert.isAbove(startedFiltered.length, 0)
+    assert.equal(stoppedFiltered.length, 0)
   })
 })
