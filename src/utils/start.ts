@@ -9,7 +9,7 @@ export async function start({
   env,
   config: { projectName },
 }: IArgs): Promise<void> {
-  await upAll({
+  const input = {
     cwd: process.env.PWD,
     config: composeFiles,
     env: {
@@ -17,5 +17,7 @@ export async function start({
       COMPOSE_PROJECT_NAME: projectName,
     },
     log: true,
-  })
+  }
+  console.log(input)
+  await upAll(input)
 }
