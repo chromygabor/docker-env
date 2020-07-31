@@ -1,9 +1,10 @@
 import { assert } from 'chai'
+import { spawn } from 'child_process'
 import { existsSync } from 'fs'
 import { describe, it } from 'mocha'
 import { resolve } from 'path'
 import { errors } from '../src/errors'
-import { CONFIG_FILENAME, IArgs, lookForConfig, start } from '../src/utils'
+import { CONFIG_FILENAME, IArgs, lookForConfig } from '../src/utils'
 
 describe('LookForConfig', () => {
   it('Should find a config on test context', () => {
@@ -75,8 +76,21 @@ describe('Start and stop', () => {
       ],
       moduleName: '',
     }
-    console.log(args)
-    await start(args)
+    //console.log(args)
+
+    //await start(args)
+    const dc = spawn('docker-compose', ['--version'])
+    dc.stdout.on('data', (data) => {
+      console.log(`--- stdout: ${data}`)
+    })
+
+    dc.stderr.on('data', (data) => {
+      console.error(`--- stderr: ${data}`)
+    })
+
+    dc.on('close', (code) => {
+      console.log(`--- child process exited with code ${code}`)
+    })
     // const docker = new Dockerode()
     // const startedList = await docker.listContainers()
     // const startedFiltered = startedList.filter((container) => {
