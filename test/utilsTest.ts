@@ -1,10 +1,10 @@
 import { assert } from 'chai'
-import { spawn } from 'child_process'
 import { existsSync } from 'fs'
 import { describe, it } from 'mocha'
 import { resolve } from 'path'
 import { errors } from '../src/errors'
-import { CONFIG_FILENAME, IArgs, lookForConfig, start } from '../src/utils'
+import { CONFIG_FILENAME, IArgs, lookForConfig } from '../src/utils'
+import { spawn } from 'child_process'
 
 describe('LookForConfig', () => {
   it('Should find a config on test context', () => {
@@ -71,15 +71,31 @@ describe('Start and stop', () => {
       },
       env: {},
       composeFiles: [
-        resolve(__dirname, './test-context/docker-compose.yml'),
-        resolve(__dirname, './test-context/docker-compose-dev.yml'),
+        resolve(__dirname, 'test-context/docker-compose.yml'),
+        resolve(__dirname, 'test-context/docker-compose-dev.yml'),
       ],
       moduleName: '',
     }
-    //console.log(args)
 
-    await start(args)
-    const dc = spawn('docker-compose', ['--version'])
+    const files = args.composeFiles
+
+    const dcArgs = files
+      .reduce<string[]>((pv, cv) => {
+        return pv.concat('-f', cv)
+      }, [])
+      .concat('up', '-d')
+
+    //await start(args)
+
+    const defaults = {
+      cwd: process.env.PWD,
+      env: {
+        ...process.env,
+        COMPOSE_PROJECT_NAME: args.config.projectName,
+      },
+    }
+    console.log(dcArgs)
+    const dc = spawn('docker-compose', dcArgs, defaults)
     dc.stdout.on('data', (data) => {
       console.log(`--- stdout: ${data}`)
     })
@@ -91,6 +107,7 @@ describe('Start and stop', () => {
     dc.on('close', (code) => {
       console.log(`--- child process exited with code ${code}`)
     })
+
     // const docker = new Dockerode()
     // const startedList = await docker.listContainers()
     // const startedFiltered = startedList.filter((container) => {

@@ -18,6 +18,5 @@ export async function start({
     },
     log: true,
   }
-  console.log(input)
   await upAll(input)
 }
