@@ -38,7 +38,7 @@
     "chai": "^4.2.0",
     "docker-compose": "^0.23.5",
     "dockerode": "^3.2.0",
-    "minimist": "^1.2.5",
+    "minimist": "^1.2.6",
     "mocha": "^8.0.1"
   },
   "directories": {
